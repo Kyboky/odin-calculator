@@ -41,7 +41,7 @@ button{
 }
 
 #on{
-    background-color: rgb(154, 255, 137);
+    background-color: rgb(83, 212, 83);
 }
 
 .operator{
@@ -58,10 +58,10 @@ button{
     align-items: center;
 }
 
-.screen{
+.calculator-screen{
     width: 80%;
     height: 80%;
-    background-color: rgb(14, 187, 14);
+    background-color: rgb(58, 240, 58);
     margin: auto;
     border-radius: 5px;
     display: flex;
@@ -73,7 +73,7 @@ button{
     background-color: rgb(6, 114, 6);
 }
 
-.screen p{
+.calculator-screen p{
     color: rgb(255, 255, 233);
     font-size: 50px;
     height: 60px;
