@@ -27,6 +27,7 @@ class Calculator {
         if(this.isTurnedOn){
             this.screenExpressionRow.innerHTML += String.fromCharCode(parseInt(inputString));
         }
+        this.screenResultRow.innerHTML="";
     }
 
     clear(){
@@ -44,7 +45,31 @@ class Calculator {
             console.log("Racunam :D");
             this.screenResultRow.innerHTML="= Neznam :P";
         }
+        const operators = ["+", "-", "*", "/"];
+        let operatorsIndexes = [];
+        let expression = this.screenExpressionRow.innerHTML;
+        for (let i = 0; i < expression.length; i++){
+            if (operators.indexOf(expression[i]) != -1){
+                operatorsIndexes.push([i,expression[i]]);
+            }
+        }
+        let numbers = [];
+        let firstfield = 0;
+        operatorsIndexes.forEach(operatorIndexPair => {
+            numbers.push(expression.slice(firstfield,operatorIndexPair[0]));
+            firstfield = operatorIndexPair[0] + 1;
+        });
+        numbers.push(expression.slice(firstfield));
+        let expressionOperators = operatorsIndexes.map(x => x[1]);
+
+        console.log(numbers);
+        console.log(expressionOperators);
     }
+
+    add(a,b){return a+b;}
+    subtract(a,b){return a-b;}
+    multiply(a,b){return a*b;}
+    divide(a,b){return a/b;}
 
     buttonClick(button){
         console.log(button.attributes["data-keycode"]);
