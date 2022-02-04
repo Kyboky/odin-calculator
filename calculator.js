@@ -1,10 +1,10 @@
 class Calculator {
     constructor(calculatorScreen, screenEquationRow, screenResultRow, buttons){
         this.calculatorScreen = calculatorScreen;
-        this.screenEquationRow = screenEquationRow;
+        this.screenExpressionRow = screenEquationRow;
         this.screenResultRow = screenResultRow;
         this.buttons = buttons;
-        let that = this;
+        this.isTurnedOn = false;
         buttons.forEach(button => {
             button.addEventListener('click', this.buttonClick.bind(this, button));
         });
@@ -13,14 +13,37 @@ class Calculator {
         this.isTurnedOn = false;
         console.log(this.calculatorScreen);
         this.calculatorScreen.classList.add("screen-off");
-        this.screenEquationRow.innerHTML="";
+        this.screenExpressionRow.innerHTML="";
         this.screenResultRow.innerHTML="";
     }
 
     calculatorOn (){
-        this.isTurnedOn = false;
+        this.isTurnedOn = true;
         console.log(this.calculatorScreen);
         this.calculatorScreen.classList.remove("screen-off");
+    }
+
+    expressionConcatinate(inputString){
+        if(this.isTurnedOn){
+            this.screenExpressionRow.innerHTML += String.fromCharCode(parseInt(inputString));
+        }
+    }
+
+    clear(){
+        this.screenExpressionRow.innerHTML="";
+        this.screenResultRow.innerHTML="";
+    }
+
+    backspace(){
+        this.screenResultRow.innerHTML="";
+        this.screenExpressionRow.innerHTML = this.screenExpressionRow.innerHTML.slice(0, -1);
+    }
+
+    evaluateExpression(){
+        if(this.isTurnedOn){
+            console.log("Racunam :D");
+            this.screenResultRow.innerHTML="= Neznam :P";
+        }
     }
 
     buttonClick(button){
@@ -32,14 +55,23 @@ class Calculator {
             case "115": 
                 this.calculatorOff();
                 break;
+            case "100":
+                this.backspace();
+                break;
+            case "102":
+                this.clear();
+                break;
+            case "13":
+                this.evaluateExpression();
+                break;
             default:
-                console.log("missing function");
+                const pressedButton = button.attributes["data-keycode"].value;
+                if (pressedButton >= 48 && pressedButton <= 57 || pressedButton == 42 || pressedButton == 43 || pressedButton == 44 || pressedButton == 47 || pressedButton == 45){
+                    this.expressionConcatinate(pressedButton);
+                }
         }
-        
     }
 }
-
-
 
 window.addEventListener('keypress', buttonClick);
 
