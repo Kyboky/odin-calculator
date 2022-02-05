@@ -12,7 +12,9 @@
         <div class="calculator">
             <div class="screen-container">
                 <div class="calculator-screen">
-                    <p id="first-row">5+4</p>
+                    <div id="expression-container">
+                        <p id="first-row"></p>
+                    </div>
                     <p id="second-row"></p>
                 </div>
             </div>
@@ -42,12 +44,18 @@
             </div>
             <div class="button-row">
                 <button data-keycode="48">0</button>
-                <button data-keycode="44">.</button>
+                <button data-keycode="46">.</button>
                 <button data-keycode="13" class="operator">=</button>
                 <button data-keycode="43" class="operator">+</button>
             </div>
         </div>
-        
+        <fieldset>
+            <legend>Controls</legend>
+                <p><strong>A</strong> - ON</p>
+                <p><strong>S</strong> - OFF</p>
+                <p><strong>D</strong> - <=</p>
+                <p><strong>F</strong> - C</p>
+        </fieldset>
     </div>
     <script src="calculator.js"></script>
 

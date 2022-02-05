@@ -1,7 +1,8 @@
 class Calculator {
-    constructor(calculatorScreen, screenEquationRow, screenResultRow, buttons){
+    constructor(calculatorScreen, screenExpressionRow, expressionContainer, screenResultRow, buttons){
         this.calculatorScreen = calculatorScreen;
-        this.screenExpressionRow = screenEquationRow;
+        this.screenExpressionRow = screenExpressionRow;
+        this.expressionContainer = expressionContainer;
         this.screenResultRow = screenResultRow;
         this.buttons = buttons;
         this.isTurnedOn = false;
@@ -25,7 +26,12 @@ class Calculator {
 
     expressionConcatinate(inputString){
         if(this.isTurnedOn){
-            this.screenExpressionRow.innerHTML += String.fromCharCode(parseInt(inputString));
+            if (inputString == 44) {
+                this.screenExpressionRow.innerHTML += ".";
+            } else{
+                this.screenExpressionRow.innerHTML += String.fromCharCode(parseInt(inputString));
+            }  
+            this.expressionContainer.scrollLeft += this.expressionContainer.scrollWidth;
         }
         this.screenResultRow.innerHTML="";
     }
@@ -42,38 +48,118 @@ class Calculator {
 
     evaluateExpression(){
         if(this.isTurnedOn){
-            console.log("Racunam :D");
-            this.screenResultRow.innerHTML="= Neznam :P";
-        }
-        const operators = ["+", "-", "*", "/"];
-        let operatorsIndexes = [];
-        let expression = this.screenExpressionRow.innerHTML;
-        for (let i = 0; i < expression.length; i++){
-            if (operators.indexOf(expression[i]) != -1){
-                operatorsIndexes.push([i,expression[i]]);
+        
+            const operators = ["+", "-", "*", "/"];
+            let operatorsIndexes = [];
+            let expression = this.screenExpressionRow.innerHTML;
+            for (let i = 0; i < expression.length; i++){
+                if (operators.indexOf(expression[i]) != -1){
+                    operatorsIndexes.push([i,expression[i]]);
+                }
             }
-        }
-        let numbers = [];
-        let firstfield = 0;
-        operatorsIndexes.forEach(operatorIndexPair => {
-            numbers.push(expression.slice(firstfield,operatorIndexPair[0]));
-            firstfield = operatorIndexPair[0] + 1;
-        });
-        numbers.push(expression.slice(firstfield));
-        let expressionOperators = operatorsIndexes.map(x => x[1]);
+            let numbers = [];
+            let firstfield = 0;
+            operatorsIndexes.forEach(operatorIndexPair => {
+                numbers.push(expression.slice(firstfield,operatorIndexPair[0]));
+                firstfield = operatorIndexPair[0] + 1;
+            });
+            numbers.push(expression.slice(firstfield));
+            let expressionOperators = operatorsIndexes.map(x => x[1]);
+            console.log("Razdvojeni");
+            console.log(numbers);
+            console.log(expressionOperators);
+            let divisionIndex, multiplicationIndex, additionIndex, subtractionIndex;
+            do{
+                console.log(numbers);
+                console.log(expressionOperators);
+                divisionIndex = expressionOperators.indexOf("/");
+                multiplicationIndex = expressionOperators.indexOf("*");
+                if ( divisionIndex == -1 && multiplicationIndex != -1){
+                    const result = this.multiply(numbers[multiplicationIndex],numbers[multiplicationIndex+1]);
+                    expressionOperators.splice(multiplicationIndex, 1);
+                    numbers[multiplicationIndex] = result;
+                    numbers.splice(multiplicationIndex + 1, 1);
+                } else if(divisionIndex != -1 && multiplicationIndex == -1){
+                    const result = this.divide(numbers[divisionIndex],numbers[divisionIndex+1]);
+                    expressionOperators.splice(divisionIndex, 1);
+                    numbers[divisionIndex] = result;
+                    numbers.splice(divisionIndex+1, 1);
+                } else if (divisionIndex < multiplicationIndex){
+                    const result = this.divide(numbers[divisionIndex],numbers[divisionIndex+1]);
+                    expressionOperators.splice(divisionIndex, 1);
+                    numbers[divisionIndex] = result;
+                    numbers.splice(divisionIndex+1, 1);
+                } else if (divisionIndex > multiplicationIndex){
+                    const result = this.multiply(numbers[multiplicationIndex],numbers[multiplicationIndex+1]);
+                    expressionOperators.splice(multiplicationIndex, 1);
+                    numbers[multiplicationIndex] = result;
+                    numbers.splice(multiplicationIndex+1, 1);
+                }
+            } while(divisionIndex != -1 || multiplicationIndex != -1);
 
-        console.log(numbers);
-        console.log(expressionOperators);
+            do{
+                additionIndex = expressionOperators.indexOf("+");
+                subtractionIndex = expressionOperators.indexOf("-");
+                if ( additionIndex == -1 && subtractionIndex != -1){
+                    const result = this.subtract(numbers[subtractionIndex],numbers[subtractionIndex+1]);
+                    expressionOperators.splice(subtractionIndex, 1);
+                    numbers[subtractionIndex] = result;
+                    numbers.splice(subtractionIndex + 1, 1);
+                } else if(additionIndex != -1 && subtractionIndex == -1){
+                    const result = this.add(numbers[additionIndex],numbers[additionIndex+1]);
+                    expressionOperators.splice(additionIndex, 1);
+                    numbers[additionIndex] = result;
+                    numbers.splice(additionIndex+1, 1);
+                } else if (additionIndex < subtractionIndex){
+                    const result = this.add(numbers[additionIndex],numbers[additionIndex+1]);
+                    expressionOperators.splice(additionIndex, 1);
+                    numbers[additionIndex] = result;
+                    numbers.splice(additionIndex+1, 1);
+                } else if (additionIndex > subtractionIndex){
+                    const result = this.subtract(numbers[subtractionIndex],numbers[subtractionIndex+1]);
+                    expressionOperators.splice(subtractionIndex, 1);
+                    numbers[subtractionIndex] = result;
+                    numbers.splice(subtractionIndex+1, 1);
+                }
+            } while(additionIndex != -1 || subtractionIndex != -1);
+            console.log("Number = " + numbers);
+            this.screenResultRow.innerHTML = `= ${this.formatNumber(numbers[0])}`; 
+        }
     }
 
-    add(a,b){return a+b;}
-    subtract(a,b){return a-b;}
-    multiply(a,b){return a*b;}
-    divide(a,b){return a/b;}
+    add(a,b){
+        return parseFloat(a)+parseFloat(b);
+    }
+    subtract(a,b){
+        return parseFloat(a)-parseFloat(b);
+    }
+    multiply(a,b){
+        return parseFloat(a)*parseFloat(b);
+    }
+    divide(a,b){
+        return parseFloat(a)/parseFloat(b);
+    }
+
+    formatNumber(number){
+        const fieldLength = 8;
+        number = number.toString();
+        if (number.length < fieldLength) return number;
+        const decimalPlace = number.indexOf(".");
+        if (decimalPlace == -1 || decimalPlace > fieldLength){
+            return Number.parseFloat(number).toExponential(5);
+        }
+        return number.slice(0,fieldLength)
+    }
 
     buttonClick(button){
-        console.log(button.attributes["data-keycode"]);
-        switch(button.attributes["data-keycode"].value){
+        let buttonKeyCode;
+        if (button instanceof KeyboardEvent){
+            buttonKeyCode = button.keyCode.toString();
+        } else {
+            buttonKeyCode = button.attributes["data-keycode"].value;
+        }
+        
+        switch(buttonKeyCode){
             case "97": 
                 this.calculatorOn();
                 break;
@@ -90,24 +176,20 @@ class Calculator {
                 this.evaluateExpression();
                 break;
             default:
-                const pressedButton = button.attributes["data-keycode"].value;
-                if (pressedButton >= 48 && pressedButton <= 57 || pressedButton == 42 || pressedButton == 43 || pressedButton == 44 || pressedButton == 47 || pressedButton == 45){
-                    this.expressionConcatinate(pressedButton);
+                if (buttonKeyCode >= 48 && buttonKeyCode <= 57 || buttonKeyCode == 42 || buttonKeyCode == 43 || buttonKeyCode == 44 || buttonKeyCode == 46 || buttonKeyCode == 47 || buttonKeyCode == 45){
+                    this.expressionConcatinate(buttonKeyCode);
                 }
         }
     }
 }
 
-window.addEventListener('keypress', buttonClick);
-
-function buttonClick(event){
-    console.log(event.keyCode);
-}
-
 const calculatorScreen = document.querySelector(".calculator-screen");
-const screenEquationRow = document.getElementById("first-row");
+const screenExpressionRow = document.getElementById("first-row");
 const screenResultRow = document.getElementById("second-row");
 const buttons = document.querySelectorAll("button");
+const expressionContainer = document.getElementById("expression-container");
+let calc = new Calculator(calculatorScreen, screenExpressionRow, expressionContainer, screenResultRow, buttons);
 
-let calc = new Calculator(calculatorScreen, screenEquationRow, screenResultRow, buttons);
+window.addEventListener('keypress', calc.buttonClick.bind(calc));
+
 calc.calculatorOff();
